@@ -64,6 +64,12 @@ export type DiscoverDeps = {
   search?: (query: string) => Promise<WebSearchResult[]>;
   extract?: (prompt: string) => Promise<string>;
   sources?: DatasetSource[];
+  /** By default the LLM/web call is skipped once `sources` already returned
+   *  `limit` people (a cost optimization). Set this when the web path is more
+   *  RELEVANT than the seeds (e.g. seeds are generic execs but you want a
+   *  role-specific contact): the web call always runs and its results are merged
+   *  + ranked with the seeds, so the better match still surfaces first. */
+  alwaysExtract?: boolean;
 };
 
 export type DiscoverInput = {

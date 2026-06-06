@@ -148,7 +148,7 @@ export const discoverContacts = async (
   );
   const collected: DiscoveredContact[] = seeded.flat();
 
-  if (collected.length < limit && deps.extract) {
+  if (deps.extract && (deps.alwaysExtract || collected.length < limit)) {
     const { search, extract } = deps;
     // With a `search` dep: fetch results, then extract from them. Without one,
     // assume `extract` is web-enabled and have it research directly.
