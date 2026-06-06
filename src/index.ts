@@ -1,3 +1,4 @@
+export { withCache, type WithCacheOptions } from "./cache";
 export { discoverContacts } from "./discover";
 export type {
   DatasetQuery,

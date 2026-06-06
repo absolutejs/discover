@@ -1,7 +1,11 @@
 {
   "author": "Alex Kahn",
   "description": "In-house B2B decision-maker discovery — find the right person at a company via importable open-data adapters + LLM/web, so you don't pay PDL/Apollo per person-search.",
+  "dependencies": {
+    "@absolutejs/sync": ">=2.2.1"
+  },
   "devDependencies": {
+    "@absolutejs/sync": "^2.2.1",
     "@types/bun": "latest",
     "typescript": "5.8.3"
   },
@@ -21,10 +25,10 @@
     "url": "https://github.com/absolutejs/discover.git"
   },
   "scripts": {
-    "build": "rm -rf dist && bun build src/index.ts --outdir dist --target=bun && tsc --emitDeclarationOnly --project tsconfig.json",
+    "build": "rm -rf dist && bun build src/index.ts --outdir dist --target=bun --external @absolutejs/sync && tsc --emitDeclarationOnly --project tsconfig.json",
     "release": "bun run build && bun publish",
     "typecheck": "tsc --noEmit"
   },
   "types": "./dist/index.d.ts",
-  "version": "0.0.6"
+  "version": "0.0.7"
 }
