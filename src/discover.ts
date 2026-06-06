@@ -47,7 +47,7 @@ COMPANY: ${input.company}${input.domain ? ` (${input.domain})` : ""}
 LOOKING FOR: ${input.roleIntent ?? "the decision-maker for partnerships / business development"}
 ${input.context ? `CONTEXT: ${input.context}\n` : ""}
 Identify up to ${limit} REAL, currently-employed people in that role at THIS company. For each, return one JSON object:
-{"fullName": "...", "title": "...", "linkedinUrl": "<url or null>", "source": "<where you found them>", "confidence": 0-100, "reason": "one line on why they fit"}
+{"fullName": "...", "title": "...", "linkedinUrl": "<url or null>", "source": "<where you found them>", "confidence": 0-100, "reason": "one line on why they fit", "background": "<notable past: companies founded/led, exits, prior senior roles — one line, or null if unknown>"}
 
 Never invent a name — only people you can actually find. Return [] if none. Output ONLY the JSON array.`;
 };
@@ -73,7 +73,7 @@ SEARCH RESULTS:
 ${block}
 
 From ONLY the people who actually appear in these results, return the best matches as a JSON array (most relevant first), each object:
-{"fullName": "...", "title": "...", "linkedinUrl": "<url or null>", "source": "<result url>", "confidence": 0-100, "reason": "one line on why they fit"}
+{"fullName": "...", "title": "...", "linkedinUrl": "<url or null>", "source": "<result url>", "confidence": 0-100, "reason": "one line on why they fit", "background": "<notable past: companies founded/led, exits, prior senior roles — one line, or null if unknown>"}
 
 Rules: real people only — never invent a name; confidence reflects how clearly the results show this person in that role at THIS company; at most ${limit}. Return [] if none qualify. Output ONLY the JSON array.`;
 };
@@ -110,6 +110,7 @@ const parsePeople = (
 
     return [
       {
+        background: stringOrUndefined(item["background"]),
         company,
         confidence: clampConfidence(item["confidence"]),
         domain,

@@ -24,6 +24,10 @@ export type NormalizedPerson = {
   /** A public email when the source carries one (e.g. a GitHub profile email) —
    *  lets the caller skip pattern-guessing for this contact. Usually absent. */
   email?: string;
+  /** Notable track record — past companies founded/led, exits, prior senior
+   *  roles. High signal for business outreach (a proven operator is worth
+   *  reaching even if currently an IC); distinct from `title` (current role). */
+  background?: string;
   /** Which adapter / source produced this. */
   source: string;
   /** 0–100 — how sure we are this is a real person in this role here. */
