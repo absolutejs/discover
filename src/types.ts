@@ -8,6 +8,9 @@ export type NormalizedCompany = {
   industry?: string;
   size?: string;
   country?: string;
+  /** The source's own identifier — LEI (GLEIF), CIK (SEC), company number, … —
+   *  the key to follow up for relationships/filings in that registry. */
+  registryId?: string;
   /** Which adapter / source produced this (e.g. "gleif", "sec-edgar", "web"). */
   source: string;
 };
