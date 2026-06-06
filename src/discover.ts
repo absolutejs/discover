@@ -36,6 +36,22 @@ const buildSearchQuery = (input: DiscoverInput) => {
   return `${input.company} ${role} leadership team site:linkedin.com/in`;
 };
 
+// For an AGENTIC extract (a web-enabled LLM that searches on its own — e.g.
+// Anthropic/OpenAI web-search tools): no pre-fetched results, ask it to research.
+const buildResearchPrompt = (input: DiscoverInput) => {
+  const limit = input.limit ?? DEFAULT_LIMIT;
+
+  return `Find the right people to contact at a company for a business partnership. Search the web as needed.
+
+COMPANY: ${input.company}${input.domain ? ` (${input.domain})` : ""}
+LOOKING FOR: ${input.roleIntent ?? "the decision-maker for partnerships / business development"}
+${input.context ? `CONTEXT: ${input.context}\n` : ""}
+Identify up to ${limit} REAL, currently-employed people in that role at THIS company. For each, return one JSON object:
+{"fullName": "...", "title": "...", "linkedinUrl": "<url or null>", "source": "<where you found them>", "confidence": 0-100, "reason": "one line on why they fit"}
+
+Never invent a name — only people you can actually find. Return [] if none. Output ONLY the JSON array.`;
+};
+
 const buildExtractPrompt = (
   input: DiscoverInput,
   results: WebSearchResult[],
@@ -132,16 +148,18 @@ export const discoverContacts = async (
   );
   const collected: DiscoveredContact[] = seeded.flat();
 
-  if (collected.length < limit && deps.search && deps.extract) {
+  if (collected.length < limit && deps.extract) {
     const { search, extract } = deps;
-    const results = (await search(buildSearchQuery(input)).catch(() => [])).slice(
-      0,
-      MAX_SEARCH_RESULTS,
-    );
-    if (results.length > 0) {
-      const text = await extract(buildExtractPrompt(input, results)).catch(
-        () => "",
-      );
+    // With a `search` dep: fetch results, then extract from them. Without one,
+    // assume `extract` is web-enabled and have it research directly.
+    let prompt: string | null = search ? null : buildResearchPrompt(input);
+    if (search) {
+      const results = (await search(buildSearchQuery(input)).catch(() => []))
+        .slice(0, MAX_SEARCH_RESULTS);
+      if (results.length > 0) prompt = buildExtractPrompt(input, results);
+    }
+    if (prompt) {
+      const text = await extract(prompt).catch(() => "");
       collected.push(...parsePeople(text, input.company, input.domain));
     }
   }
