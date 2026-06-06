@@ -21,6 +21,9 @@ export type NormalizedPerson = {
   company?: string;
   domain?: string;
   linkedinUrl?: string;
+  /** A public email when the source carries one (e.g. a GitHub profile email) —
+   *  lets the caller skip pattern-guessing for this contact. Usually absent. */
+  email?: string;
   /** Which adapter / source produced this. */
   source: string;
   /** 0–100 — how sure we are this is a real person in this role here. */
