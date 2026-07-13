@@ -1,8 +1,10 @@
 {
   "author": "Alex Kahn",
-  "description": "In-house B2B decision-maker discovery — find the right person at a company via importable open-data adapters + LLM/web, so you don't pay PDL/Apollo per person-search.",
+  "description": "In-house B2B decision-maker discovery \u2014 find the right person at a company via importable open-data adapters + LLM/web, so you don't pay PDL/Apollo per person-search.",
   "dependencies": {
-    "@absolutejs/sync": ">=2.2.1"
+    "@absolutejs/sync": ">=2.2.1",
+    "@absolutejs/manifest": "^0.1.0",
+    "@sinclair/typebox": "^0.34.0"
   },
   "devDependencies": {
     "@absolutejs/sync": "^2.2.1",
@@ -25,10 +27,26 @@
     "url": "https://github.com/absolutejs/discover.git"
   },
   "scripts": {
-    "build": "rm -rf dist && bun build src/index.ts --outdir dist --target=bun --external @absolutejs/sync && tsc --emitDeclarationOnly --project tsconfig.json",
+    "build": "rm -rf dist && bun build src/index.ts src/manifest.ts --outdir dist --root ./src --target=bun --external @absolutejs/sync && tsc --emitDeclarationOnly --project tsconfig.json && absolute-manifest emit",
     "release": "bun run build && bun publish",
     "typecheck": "tsc --noEmit"
   },
   "types": "./dist/index.d.ts",
-  "version": "0.0.7"
+  "version": "0.0.7",
+  "absolutejs": {
+    "manifestContract": 1
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./manifest": {
+      "types": "./dist/manifest.d.ts",
+      "import": "./dist/manifest.js",
+      "default": "./dist/manifest.js"
+    },
+    "./manifest.json": "./dist/manifest.json"
+  }
 }
