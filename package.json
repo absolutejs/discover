@@ -1,6 +1,6 @@
 {
   "author": "Alex Kahn",
-  "description": "In-house B2B decision-maker discovery \u2014 find the right person at a company via importable open-data adapters + LLM/web, so you don't pay PDL/Apollo per person-search.",
+  "description": "In-house B2B decision-maker discovery — find the right person at a company via importable open-data adapters + LLM/web, so you don't pay PDL/Apollo per person-search.",
   "dependencies": {
     "@absolutejs/sync": ">=2.2.1",
     "@absolutejs/manifest": "^0.1.0",
@@ -32,7 +32,7 @@
     "typecheck": "tsc --noEmit"
   },
   "types": "./dist/index.d.ts",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "absolutejs": {
     "manifestContract": 1
   },
