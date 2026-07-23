@@ -13,7 +13,7 @@ const MAX_CONTACTS = 25;
  * is an array while a v1 slot resolves to ONE adapter — fan-out across
  * several datasets is wired by hand today. */
 export const manifest = defineManifest<DiscoverDeps, DiscoverDeps>()({
-  contract: 1,
+  contract: 2,
   identity: {
     accent: "#3b82f6",
     category: "growth",
@@ -36,7 +36,8 @@ export const manifest = defineManifest<DiscoverDeps, DiscoverDeps>()({
     sources: {
       configPath: "sources",
       contract: "discover/dataset-source",
-      description: "Free open-data sources consulted before the paid LLM/web path",
+      description:
+        "Free open-data sources consulted before the paid LLM/web path",
       known: [
         "@absolutejs/dataset-gleif",
         "@absolutejs/dataset-sec-edgar",
@@ -46,7 +47,16 @@ export const manifest = defineManifest<DiscoverDeps, DiscoverDeps>()({
   },
   tools: {
     find_contacts: tool.runtime({
-      annotations: { openWorldHint: true, readOnlyHint: true },
+      annotations: { idempotentHint: true, openWorldHint: true },
+      authorization: {
+        approval: "never",
+        audience: "authenticated",
+        destinations: ["configured-contact-research-provider"],
+        effects: ["read", "external-network"],
+        idempotency: { mode: "host" },
+        requiredScopes: ["contacts:discover"],
+        reversible: false,
+      },
       description:
         "Find likely decision-makers at a company for a role intent (e.g. 'head of partnerships'). Returns people with title, confidence (0–100), source, and a reason — from open datasets first, then LLM + web when wired.",
       handler: async (input, deps) =>

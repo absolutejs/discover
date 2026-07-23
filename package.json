@@ -3,11 +3,10 @@
   "description": "In-house B2B decision-maker discovery — find the right person at a company via importable open-data adapters + LLM/web, so you don't pay PDL/Apollo per person-search.",
   "dependencies": {
     "@absolutejs/sync": ">=2.2.1",
-    "@absolutejs/manifest": "^0.1.0",
+    "@absolutejs/manifest": "^0.4.0",
     "@sinclair/typebox": "^0.34.0"
   },
   "devDependencies": {
-    "@absolutejs/sync": "^2.2.1",
     "@types/bun": "latest",
     "typescript": "5.8.3"
   },
@@ -32,9 +31,9 @@
     "typecheck": "tsc --noEmit"
   },
   "types": "./dist/index.d.ts",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "absolutejs": {
-    "manifestContract": 1
+    "manifestContract": 2
   },
   "exports": {
     ".": {
