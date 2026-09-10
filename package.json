@@ -7,7 +7,7 @@
     "@sinclair/typebox": "^0.34.0"
   },
   "devDependencies": {
-    "@absolutejs/changelog": "^0.5.1",
+    "@absolutejs/changelog": "^0.6.0",
     "@types/bun": "latest",
     "typescript": "5.8.3"
   },
@@ -33,7 +33,7 @@
     "release": "bun run build && bun publish",
     "typecheck": "tsc --noEmit",
     "check:package": "absolute-changelog check",
-    "prepublishOnly": "absolute-changelog check"
+    "prepublishOnly": "bun run check:package"
   },
   "types": "./dist/index.d.ts",
   "version": "0.0.9",
