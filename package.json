@@ -3,17 +3,20 @@
   "description": "In-house B2B decision-maker discovery — find the right person at a company via importable open-data adapters + LLM/web, so you don't pay PDL/Apollo per person-search.",
   "dependencies": {
     "@absolutejs/sync": ">=2.2.1",
-    "@absolutejs/manifest": "^0.4.0",
+    "@absolutejs/manifest": "^0.9.0",
     "@sinclair/typebox": "^0.34.0"
   },
   "devDependencies": {
+    "@absolutejs/changelog": "^0.1.2",
     "@types/bun": "latest",
     "typescript": "5.8.3"
   },
   "files": [
-    "dist",
+    "CHANGELOG.md",
+    "LICENSE",
     "README.md",
-    "LICENSE"
+    "changelog.json",
+    "dist"
   ],
   "license": "BSL-1.1",
   "publishConfig": {
@@ -28,7 +31,8 @@
   "scripts": {
     "build": "rm -rf dist && bun build src/index.ts src/manifest.ts --outdir dist --root ./src --target=bun --external @absolutejs/sync && tsc --emitDeclarationOnly --project tsconfig.json && absolute-manifest emit",
     "release": "bun run build && bun publish",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:package": "absolute-changelog check"
   },
   "types": "./dist/index.d.ts",
   "version": "0.0.9",

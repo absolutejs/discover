@@ -3,7 +3,9 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["bun"],
+    "types": [
+      "bun"
+    ],
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "dist",
@@ -13,5 +15,8 @@
     "esModuleInterop": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "changelog/**/*"
+  ]
 }
