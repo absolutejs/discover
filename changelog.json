@@ -5,6 +5,16 @@
 		{
 			"changes": [
 				{
+					"kind": "fixed",
+					"summary": "Remove the unused sync dependency from standalone contact discovery"
+				}
+			],
+			"date": "2026-09-24",
+			"version": "0.1.1"
+		},
+		{
+			"changes": [
+				{
 					"kind": "breaking",
 					"migration": {
 						"instruction": "Use searchEvidence (or the legacy search array adapter) plus evidence-only extract returning exact source and quote fields. Extract-only hidden research is no longer run; explicit research must return SearchResult. Use discoverContactsWithEvidence to distinguish unavailable from empty. Contact deduplication preserves distinct company/profile/role identities.",
