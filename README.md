@@ -46,13 +46,20 @@ private; it's the product.
 ```ts
 type DiscoverDeps = {
   search?: (query: string) => Promise<WebSearchResult[]>; // Brave, SerpAPI, RAG…
-  extract?: (prompt: string) => Promise<string>;          // any LLM completion
-  sources?: DatasetSource[];                               // importable adapters
+  extract?: (prompt: string) => Promise<string>; // any LLM completion
+  sources?: DatasetSource[]; // importable adapters
 };
 ```
 
 With no deps it returns only what the adapters provide. With `search` + `extract`
-it discovers from the open web (the LLM is told to use *only* people who appear
+it discovers from the open web (the LLM is told to use _only_ people who appear
 in the results — never to invent names). Results are deduped and ranked by
-confidence. Never throws — a failing source / search / LLM just contributes
-nothing.
+evidence and confidence. Use the structured result to distinguish a completed
+empty search from unavailable or partial research. Caller cancellation and invalid
+query budgets throw; adapter and extraction failures are recorded as limitations.
+
+## Source-bound discovery (0.1)
+
+Prefer `discoverContactsWithEvidence(input, { searchEvidence, extract })`. `searchEvidence` returns `SearchResult` from `@absolutejs/search`; `extract` only interprets the supplied sources and must return JSON contacts with `fullName`, `title`, `source`, and an exact supporting `quote`. The array-returning `discoverContacts` and legacy `search` callback remain available, but extract-only hidden web research is no longer invoked. If additional research is desired, explicitly provide `research`, returning source-bound `SearchResult` evidence.
+
+Inspect `status` before caching a negative result: `empty` is completed research, while `unavailable` or `partial` must not become evidence of absence. Optional dataset-cache persistence, capacity, negative TTL and in-flight coalescing are configured through `withCache`. Dataset identities remain adapter assertions; source-bound web contacts include their supporting excerpts. Distinct employer, profile and role identities are retained even when names match.

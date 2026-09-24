@@ -1,5 +1,27 @@
 {
 	"contract": 1,
 	"name": "@absolutejs/discover",
-	"releases": []
+	"releases": [
+		{
+			"changes": [
+				{
+					"kind": "breaking",
+					"migration": {
+						"instruction": "Use searchEvidence (or the legacy search array adapter) plus evidence-only extract returning exact source and quote fields. Extract-only hidden research is no longer run; explicit research must return SearchResult. Use discoverContactsWithEvidence to distinguish unavailable from empty. Contact deduplication preserves distinct company/profile/role identities.",
+						"manual": true
+					},
+					"summary": "Require source-bound contact extraction, preserve discovery status, strengthen identity merging and bound/coalesce dataset caching",
+					"symbols": [
+						"discoverContacts",
+						"DiscoverDeps",
+						"DiscoverInput",
+						"DiscoveredContact",
+						"WithCacheOptions"
+					]
+				}
+			],
+			"date": "2026-09-24",
+			"version": "0.1.0"
+		}
+	]
 }

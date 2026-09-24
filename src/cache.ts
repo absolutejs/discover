@@ -1,95 +1,84 @@
-import { createWriteBehindCache } from "@absolutejs/sync/write-behind-cache";
 import type {
-  DatasetQuery,
   DatasetSource,
   NormalizedCompany,
   NormalizedPerson,
 } from "./types";
-
-const HOURS_PER_DAY = 24;
-const MINUTES_PER_HOUR = 60;
-const SECONDS_PER_MINUTE = 60;
-const MS_PER_SECOND = 1000;
-const DEFAULT_TTL_MS =
-  HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MS_PER_SECOND;
-
-type TimedEntry<V> = { value: V; fetchedAt: number };
-
-const queryKey = (query: DatasetQuery) =>
-  [
-    query.company ?? "",
-    query.domain ?? "",
-    query.roleIntent ?? "",
-    String(query.limit ?? ""),
-  ]
-    .join("|")
-    .toLowerCase();
-
-const companyKey = (input: { name?: string; domain?: string }) =>
-  [input.name ?? "", input.domain ?? ""].join("|").toLowerCase();
-
+type Value = NormalizedCompany | NormalizedPerson[] | null;
+export type DatasetCacheEntry = { value: Value; expiresAt: number };
 export type WithCacheOptions = {
-  /** Entries older than this are re-fetched. Default 24h. */
   ttlMs?: number;
-  /** Injectable clock (for tests). */
+  emptyTtlMs?: number;
+  capacity?: number;
   now?: () => number;
+  store?: {
+    get: (key: string) => Promise<DatasetCacheEntry | undefined>;
+    set: (key: string, entry: DatasetCacheEntry) => Promise<void>;
+  };
 };
-
-// Wrap a DatasetSource with a TTL'd read-through cache so repeated lookups for
-// the same company skip the (often many-call) API hit — e.g. SEC's ~10 and
-// GitHub's ~15 requests collapse to one per company per TTL window. Backed by
-// @absolutejs/sync's write-behind cache primitive; in-memory today, and ready to
-// gain a durable cross-instance store through that primitive's load/persist
-// hooks without changing this surface.
 export const withCache = (
   source: DatasetSource,
   options: WithCacheOptions = {},
 ): DatasetSource => {
-  const ttlMs = options.ttlMs ?? DEFAULT_TTL_MS;
-  const now = options.now ?? (() => Date.now());
-
-  const noLoad = () => undefined;
-  const noPersist = () => undefined;
-  const peopleCache = createWriteBehindCache<
-    string,
-    TimedEntry<NormalizedPerson[]>
-  >({ load: noLoad, persist: noPersist });
-  const companyCache = createWriteBehindCache<
-    string,
-    TimedEntry<NormalizedCompany | null>
-  >({ load: noLoad, persist: noPersist });
-
-  const result: DatasetSource = { name: source.name };
-
-  const findCompanyImpl = source.findCompany;
-  if (findCompanyImpl) {
-    result.findCompany = async (input) => {
-      const key = companyKey(input);
-      const entry = companyCache.peek(key);
-      if (entry !== undefined && now() - entry.fetchedAt < ttlMs) {
-        return entry.value;
+  const cache = new Map<string, DatasetCacheEntry>(),
+    pending = new Map<string, Promise<Value>>();
+  const now = options.now ?? Date.now;
+  const capacity = options.capacity ?? 500;
+  if (!Number.isInteger(capacity) || capacity < 1)
+    throw new Error("Cache capacity must be positive");
+  const load = async <T extends Value>(
+    kind: string,
+    query: object,
+    fetchValue: () => Promise<T>,
+  ): Promise<T> => {
+    const key = JSON.stringify([
+      source.name,
+      kind,
+      Object.entries(query)
+        .filter(([key]) => key !== "signal")
+        .sort(([a], [b]) => a.localeCompare(b)),
+    ]);
+    const cached = cache.get(key) ?? (await options.store?.get(key));
+    if (cached && cached.expiresAt > now())
+      return structuredClone(cached.value) as T;
+    cache.delete(key);
+    const inFlight = pending.get(key);
+    if (inFlight) return structuredClone(await inFlight) as T;
+    const work = (async () => {
+      const value = await fetchValue();
+      const empty = value === null || (Array.isArray(value) && !value.length);
+      const ttl = empty
+        ? (options.emptyTtlMs ?? 60000)
+        : (options.ttlMs ?? 86400000);
+      if (ttl > 0) {
+        const entry = { value: structuredClone(value), expiresAt: now() + ttl };
+        while (cache.size >= capacity) cache.delete(cache.keys().next().value!);
+        cache.set(key, entry);
+        await options.store?.set(key, entry);
       }
-      const value = await findCompanyImpl(input);
-      companyCache.set(key, { fetchedAt: now(), value });
-
       return value;
-    };
-  }
-
-  const findPeopleImpl = source.findPeople;
-  if (findPeopleImpl) {
-    result.findPeople = async (query) => {
-      const key = queryKey(query);
-      const entry = peopleCache.peek(key);
-      if (entry !== undefined && now() - entry.fetchedAt < ttlMs) {
-        return entry.value;
-      }
-      const value = await findPeopleImpl(query);
-      peopleCache.set(key, { fetchedAt: now(), value });
-
-      return value;
-    };
-  }
-
-  return result;
+    })();
+    pending.set(key, work);
+    try {
+      return await work;
+    } finally {
+      pending.delete(key);
+    }
+  };
+  return {
+    name: source.name,
+    ...(source.findPeople
+      ? {
+          findPeople: (
+            query: Parameters<NonNullable<DatasetSource["findPeople"]>>[0],
+          ) => load("people", query, () => source.findPeople!(query)),
+        }
+      : {}),
+    ...(source.findCompany
+      ? {
+          findCompany: (
+            query: Parameters<NonNullable<DatasetSource["findCompany"]>>[0],
+          ) => load("company", query, () => source.findCompany!(query)),
+        }
+      : {}),
+  };
 };

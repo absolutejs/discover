@@ -1,3 +1,4 @@
+import type { SearchResult } from "@absolutejs/search";
 // The normalized shapes every dataset adapter emits and discover returns. Keep
 // these stable: open-data adapters (@absolutejs/dataset-gleif, -sec-edgar, …)
 // and the LLM/web path both produce them, so callers see one consistent type.
@@ -70,6 +71,13 @@ export type WebSearchResult = {
 export type DiscoverDeps = {
   search?: (query: string) => Promise<WebSearchResult[]>;
   extract?: (prompt: string) => Promise<string>;
+  searchEvidence?: (
+    query: string,
+    signal?: AbortSignal,
+  ) => Promise<SearchResult>;
+  /** Explicit source-bound fallback; never infer web capability from extraction. */
+  research?: (query: string, signal?: AbortSignal) => Promise<SearchResult>;
+  maxQueries?: number;
   sources?: DatasetSource[];
   /** By default the LLM/web call is skipped once `sources` already returned
    *  `limit` people (a cost optimization). Set this when the web path is more
@@ -80,6 +88,7 @@ export type DiscoverDeps = {
 };
 
 export type DiscoverInput = {
+  signal?: AbortSignal;
   company: string;
   domain?: string;
   roleIntent?: string;
@@ -91,4 +100,5 @@ export type DiscoverInput = {
 export type DiscoveredContact = NormalizedPerson & {
   /** One line on why this person fits the role intent, when the LLM gives it. */
   reason?: string;
+  evidence?: { url: string; quote: string; retrievedAt?: string }[];
 };
