@@ -5,6 +5,20 @@
 		{
 			"changes": [
 				{
+					"kind": "added",
+					"summary": "Expose server-side discovery diagnostics without discarding search rejection reasons or extraction errors",
+					"symbols": [
+						"DiscoverDeps",
+						"DiscoveryDiagnostic"
+					]
+				}
+			],
+			"date": "2026-09-27",
+			"version": "0.2.0"
+		},
+		{
+			"changes": [
+				{
 					"kind": "fixed",
 					"summary": "Remove the unused sync dependency from standalone contact discovery"
 				}

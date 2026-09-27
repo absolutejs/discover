@@ -10,6 +10,7 @@ export type {
   DatasetQuery,
   DatasetSource,
   DiscoverDeps,
+  DiscoveryDiagnostic,
   DiscoverInput,
   DiscoveredContact,
   NormalizedCompany,

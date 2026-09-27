@@ -63,3 +63,12 @@ query budgets throw; adapter and extraction failures are recorded as limitations
 Prefer `discoverContactsWithEvidence(input, { searchEvidence, extract })`. `searchEvidence` returns `SearchResult` from `@absolutejs/search`; `extract` only interprets the supplied sources and must return JSON contacts with `fullName`, `title`, `source`, and an exact supporting `quote`. The array-returning `discoverContacts` and legacy `search` callback remain available, but extract-only hidden web research is no longer invoked. If additional research is desired, explicitly provide `research`, returning source-bound `SearchResult` evidence.
 
 Inspect `status` before caching a negative result: `empty` is completed research, while `unavailable` or `partial` must not become evidence of absence. Optional dataset-cache persistence, capacity, negative TTL and in-flight coalescing are configured through `withCache`. Dataset identities remain adapter assertions; source-bound web contacts include their supporting excerpts. Distinct employer, profile and role identities are retained even when names match.
+
+For server-side troubleshooting, supply `onDiagnostic(diagnostic)`. It receives
+`stage` (`dataset`, `search`, or `extraction`), the original caught `error`, and,
+for unsuccessful structured searches, `source`, `status`, and `limitations`.
+Use this to distinguish local pacing from provider limits and malformed extraction
+from provider failures. These diagnostics can contain sensitive provider details;
+retain them in server telemetry, not user-facing responses. Public limitations
+remain stable. Synchronous observer exceptions are ignored and caller cancellation
+continues to throw.

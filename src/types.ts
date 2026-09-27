@@ -1,4 +1,13 @@
-import type { SearchResult } from "@absolutejs/search";
+import type { SearchResult, SearchStatus } from "@absolutejs/search";
+
+/** Server-side diagnostics; may contain provider errors. Do not display to users. */
+export type DiscoveryDiagnostic = {
+  stage: "dataset" | "search" | "extraction";
+  source?: string;
+  status?: SearchStatus;
+  limitations?: string[];
+  error?: unknown;
+};
 // The normalized shapes every dataset adapter emits and discover returns. Keep
 // these stable: open-data adapters (@absolutejs/dataset-gleif, -sec-edgar, …)
 // and the LLM/web path both produce them, so callers see one consistent type.
@@ -69,6 +78,8 @@ export type WebSearchResult = {
 // LLM completion that returns text (we parse the JSON out of it). Both optional:
 // with neither, discover returns only what the dataset `sources` provide.
 export type DiscoverDeps = {
+  /** Receives failures without replacing the safe public limitations. Observer errors are ignored. */
+  onDiagnostic?: (diagnostic: DiscoveryDiagnostic) => void;
   search?: (query: string) => Promise<WebSearchResult[]>;
   extract?: (prompt: string) => Promise<string>;
   searchEvidence?: (
