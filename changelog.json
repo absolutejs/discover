@@ -5,6 +5,16 @@
 		{
 			"changes": [
 				{
+					"kind": "fixed",
+					"summary": "Republish discovery diagnostics with npm tarball delivery after the 0.2.0 artifact returned 404"
+				}
+			],
+			"date": "2026-09-27",
+			"version": "0.2.1"
+		},
+		{
+			"changes": [
+				{
 					"kind": "added",
 					"summary": "Expose server-side discovery diagnostics without discarding search rejection reasons or extraction errors",
 					"symbols": [
