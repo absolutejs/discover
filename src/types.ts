@@ -82,6 +82,10 @@ export type DiscoverDeps = {
   onDiagnostic?: (diagnostic: DiscoveryDiagnostic) => void;
   search?: (query: string) => Promise<WebSearchResult[]>;
   extract?: (prompt: string) => Promise<string>;
+  /** Count the COMPLETE extraction request, including system/schema/output reserve.
+   * Oversized evidence is split without truncation; extract is called sequentially
+   * for each fitting batch. Persist successful extracts to resume without charges. */
+  fitsExtractionPrompt?: (prompt: string) => Promise<boolean>;
   searchEvidence?: (
     query: string,
     signal?: AbortSignal,

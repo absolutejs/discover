@@ -72,3 +72,26 @@ from provider failures. These diagnostics can contain sensitive provider details
 retain them in server telemetry, not user-facing responses. Public limitations
 remain stable. Synchronous observer exceptions are ignored and caller cancellation
 continues to throw.
+
+## Full documents and model capacity
+
+For retrieved pages or PDFs, supply `fitsExtractionPrompt`. Count the **complete**
+request with your provider, including system instructions, structured-output tools,
+output tokens and a safety margin. With `@absolutejs/ai`, use
+`inspectAIContext(provider, request).withinWorkingLimit` (await the inspection),
+and keep the default context policy enabled on the actual generation call.
+
+Discovery deduplicates repeated source URLs/passages and checks each prompt before
+extraction. Oversized evidence is partitioned into sequential batches; oversized
+individual passages are split with overlap, without dropping characters. Each
+batch's contacts are validated against the full retained sources. If a later batch
+fails, earlier contacts survive with `partial` status. Persist the original search
+results and cache successful `extract(prompt)` results by a stable prompt identity
+before starting another paid call. Resuming then reuses completed work. Do not
+silently turn a partial result into a completed negative lookup.
+
+The fit callback is optional for compatibility with existing snippet-only callers;
+without it, discovery cannot know your model's capacity and does not partition.
+Do not use character counts as production token estimates. The exported
+`partitionDiscoveryEvidence` and `deduplicateDiscoveryEvidence` utilities are also
+available for other source-grounded extraction pipelines.

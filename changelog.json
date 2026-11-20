@@ -6,6 +6,28 @@
 			"changes": [
 				{
 					"kind": "fixed",
+					"summary": "Deduplicate repeated source URLs and passages without truncating retained evidence",
+					"symbols": [
+						"discoverContactsWithEvidence"
+					]
+				},
+				{
+					"kind": "added",
+					"summary": "Partition full discovery evidence by provider-counted capacity and retain partial extraction progress",
+					"symbols": [
+						"DiscoverDeps",
+						"partitionDiscoveryEvidence",
+						"deduplicateDiscoveryEvidence"
+					]
+				}
+			],
+			"date": "2026-11-20",
+			"version": "0.3.0"
+		},
+		{
+			"changes": [
+				{
+					"kind": "fixed",
 					"summary": "Republish discovery diagnostics with npm tarball delivery after the 0.2.0 artifact returned 404"
 				}
 			],

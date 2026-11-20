@@ -17,3 +17,5 @@ export type {
   NormalizedPerson,
   WebSearchResult,
 } from "./types";
+
+export { deduplicateDiscoveryEvidence, partitionDiscoveryEvidence } from "./evidence";
